@@ -1,0 +1,2 @@
+# Parallel Canny Edge Detector
+
