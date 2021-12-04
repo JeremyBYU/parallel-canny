@@ -62,28 +62,35 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    output_image_path = img_path.substr(0, img_path.length() - 4) + "_edges.png";
+    // Load Color Image
     int x,y,n;
-    unsigned char *data = stbi_load(img_path.c_str(), &x, &y, &n, 0);
+    unsigned char *color_image_data = stbi_load(img_path.c_str(), &x, &y, &n, 0);
+    size_t img_size = x * y * n;
     std::cout << "Size: (" << x << "x" << y << "x" << n << ")" << std::endl;
 
-    // int w = img_gray.cols;
-    // int h = img_ori.rows;
+    // Convert Grey Image
+    unsigned char *gray_image_data = static_cast<unsigned char *>(calloc(x * y, sizeof(unsigned char)));
+    size_t gray_img_size = x * y;
+    for(unsigned char *p = color_image_data, *pg = gray_image_data; p != color_image_data + img_size; p += 3, pg += 1) {
+         *pg = (uint8_t)((*p + *(p + 1) + *(p + 2))/3.0);
+    }
 
-    // PCanny::Canny::NoiseFilter filter = keymolen::Canny::NoiseFilter::Gaus3x3;
+    output_image_path = img_path.substr(0, img_path.length() - 4) + "_gray.png";
+    stbi_write_png(output_image_path.c_str(), x, y, 1, gray_image_data, y * 1);
 
-    // while (1) {
-    //     cv::Mat img_edge(h, w, CV_8UC1, cv::Scalar::all(0));
-
-    //     PCanny::Canny canny(w, h);
-    //     canny.edges(img_edge.data, img_gray.data, filter, low_threshold,
-    //                 high_threshold);
 
     unsigned char *image_edges = static_cast<unsigned char *>(calloc(x * y, sizeof(unsigned char)));
+    PCanny::PCanny::NoiseFilter filter = PCanny::PCanny::NoiseFilter::Gaus3x3;
+    PCanny::PCanny canny(x, y);
 
-    stbi_write_png(output_image_path.c_str(), x, y, 1, image_edges, 1);
-    
-    stbi_image_free(data);
+    canny.edges(image_edges, gray_image_data, filter, low_threshold,
+                high_threshold);
+
+    output_image_path = img_path.substr(0, img_path.length() - 4) + "_edges.png";
+    stbi_write_png(output_image_path.c_str(), x, y, 1, image_edges, y * 1);
+
+
+    stbi_image_free(color_image_data);
 
     return 0;
 }
