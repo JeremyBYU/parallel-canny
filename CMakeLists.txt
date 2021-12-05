@@ -29,11 +29,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 option(PCAN_BUILD_PYMODULE "SPL -Build Python Module" ON)
 option(PCAN_BUILD_EXAMPLES "SPL - Build Examples" ON)
 option(PCAN_WITH_OPENMP "SPL - Build with OpenMP Support" ON)
+option(PCAN_BUILD_BENCHMARKS "SPL - Build Benchmarks" ON)
 option(PCAN_BUILD_TESTS "SPL - Build Tests" OFF)
-option(PCAN_BUILD_BENCHMARKS "SPL - Build Benchmarks" OFF)
 
 # Add any dependencies needed by our library
-# add_subdirectory("thirdparty")
+add_subdirectory("thirdparty")
 
 # Build our library
 add_subdirectory("src")

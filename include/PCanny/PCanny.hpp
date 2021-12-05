@@ -66,6 +66,11 @@ class PCanny {
    public:
     PCanny(int w, int h);
     virtual ~PCanny();
+    void GaussianFilter(unsigned char *dst, const unsigned char *src,
+                                PCanny::NoiseFilter kernel_size);
+    void SobelFilter(unsigned char *dst);
+    void LocalMaxima();
+    void CannyEdges(unsigned char *dst,int weak_threshold, int strong_threshold);
     unsigned char* edges(unsigned char* dst, const unsigned char* src,
                          PCanny::NoiseFilter kernel_size,
                          int weak_threshold = 50, int strong_threshold = 200);

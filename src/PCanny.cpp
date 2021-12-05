@@ -98,10 +98,11 @@ namespace PCanny
         free(s_);
     }
 
-    unsigned char *PCanny::edges(unsigned char *dst, const unsigned char *src,
-                                 PCanny::NoiseFilter kernel_size, int weak_threshold,
-                                 int strong_threshold)
+
+    void PCanny::GaussianFilter(unsigned char *dst, const unsigned char *src,
+                                PCanny::NoiseFilter kernel_size)
     {
+
         int offset_xy = 1; // for kernel = 3
         int8_t *kernel = (int8_t *)Gaus3x3;
         int kernel_div = Gaus3x3Div;
@@ -112,9 +113,7 @@ namespace PCanny
             kernel = (int8_t *)Gaus5x5;
             kernel_div = Gaus5x5Div;
         }
-
         // gaussian filter
-
         for (int x = 0; x < w_; x++)
         {
             for (int y = 0; y < h_; y++)
@@ -141,8 +140,13 @@ namespace PCanny
             }
         }
 
-        // apply sobel kernels
-        offset_xy = 1; // 3x3
+    }
+
+    void PCanny::SobelFilter(unsigned char *dst)
+    {
+
+         // apply sobel kernels
+        int offset_xy = 1; // 3x3
         for (int x = offset_xy; x < w_ - offset_xy; x++)
         {
             for (int y = offset_xy; y < h_ - offset_xy; y++)
@@ -209,9 +213,11 @@ namespace PCanny
             }
         }
 
-        // local maxima: non maxima suppression
-        memcpy(M_, G_, w_ * h_ * sizeof(double));
+    }
 
+   void PCanny::LocalMaxima()
+    {
+        
         for (int x = 1; x < w_ - 1; x++)
         {
             for (int y = 1; y < h_ - 1; y++)
@@ -254,8 +260,10 @@ namespace PCanny
                 }
             }
         }
+    }
 
-        // double threshold
+    void PCanny::CannyEdges(unsigned char *dst,int weak_threshold, int strong_threshold)
+    {
         for (int x = 0; x < w_; x++)
         {
             for (int y = 0; y < h_; y++)
@@ -307,6 +315,20 @@ namespace PCanny
                 }
             }
         }
+    }
+
+    unsigned char *PCanny::edges(unsigned char *dst, const unsigned char *src,
+                                 PCanny::NoiseFilter kernel_size, int weak_threshold,
+                                 int strong_threshold)
+    {
+        GaussianFilter(dst, src, kernel_size);
+        SobelFilter(dst);
+
+        // local maxima: non maxima suppression
+        memcpy(M_, G_, w_ * h_ * sizeof(double));
+        LocalMaxima();
+
+        CannyEdges(dst, weak_threshold, strong_threshold);
 
         return dst;
     }
