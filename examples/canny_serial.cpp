@@ -31,6 +31,20 @@ void usage(char* s) {
     fprintf(stderr, "\n");
 }
 
+template<class T>
+unsigned char* convert(T *image, int m, int n, double scale=16.0)
+{
+    unsigned char *new_data = static_cast<unsigned char *>(calloc(m * n, sizeof(unsigned char)));
+    for(int i = 0; i < m; ++i) {
+        for(int j = 0; j < n; ++j)
+        {
+            int pos = j + (i * n);
+            new_data[pos] = static_cast<uint8_t>((image[pos] / scale) * 255.0 ) ;
+        }
+    }
+    return new_data;
+}
+
 
 void transform(std::string img_path, int low_threshold, int high_threshold)
 {
@@ -52,24 +66,42 @@ void transform(std::string img_path, int low_threshold, int high_threshold)
     output_image_path = img_path.substr(0, img_path.length() - 4) + "_gray.png";
     stbi_write_png(output_image_path.c_str(), x, y, 1, gray_image_data, x * 1);
 
-    // setup Canny Edge Detector
+    // Setup Canny Edge Detector
     unsigned char *image_edges = static_cast<unsigned char *>(calloc(x * y, sizeof(unsigned char)));
     PCanny::Canny::NoiseFilter filter = PCanny::Canny::NoiseFilter::Gaus3x3;
     PCanny::Canny canny(x, y);
     // Call Function
-    canny.edges(image_edges, gray_image_data, filter, low_threshold,
-                high_threshold);
 
-    // Write Canny Edges
-    output_image_path = img_path.substr(0, img_path.length() - 4) + "_edges.png";
+    // Write Gaussian Edges
+    canny.GaussianFilter(image_edges, gray_image_data, filter);
+    output_image_path = img_path.substr(0, img_path.length() - 4) + "_gaussian.png";
     stbi_write_png(output_image_path.c_str(), x, y, 1, image_edges, x * 1);
+    
+    // Write Sobel Edges
+    canny.SobelFilter(image_edges);
+    auto converted_sobel =convert(canny.G_, y, x);
+    output_image_path = img_path.substr(0, img_path.length() - 4) + "_sobel.png";
+    stbi_write_png(output_image_path.c_str(), x, y, 1, converted_sobel, x * 1);
+
+    // Write Segmented Edges
+    auto converted_segment =convert(canny.s_, y, x, 4.0);
+    output_image_path = img_path.substr(0, img_path.length() - 4) + "_angle.png";
+    stbi_write_png(output_image_path.c_str(), x, y, 1, converted_segment, x * 1);
+
+
+    // Write Local Max Edges
+    canny.LocalMaxima();
+    output_image_path = img_path.substr(0, img_path.length() - 4) + "_maxima.png";
+    stbi_write_png(output_image_path.c_str(), x, y, 1, canny.M_, x * 1);
 
     // Write Canny Edges
-    output_image_path = img_path.substr(0, img_path.length() - 4) + "_edges.png";
+    canny.CannyEdges(image_edges, low_threshold,high_threshold);
+    output_image_path = img_path.substr(0, img_path.length() - 4) + "_maxima.png";
     stbi_write_png(output_image_path.c_str(), x, y, 1, image_edges, x * 1);
 
 
     stbi_image_free(color_image_data);
+    // should free converted_sobel....
 
 }
 

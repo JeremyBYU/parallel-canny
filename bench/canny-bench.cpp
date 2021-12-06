@@ -39,7 +39,7 @@ void gen(std::string const& typeName, char const* mustacheTemplate,
 
 TEST_CASE("Canny, Parallel")
 {
-    std::string img_path = "../fixtures/bird.png";
+    std::string img_path = "../fixtures/kingfisher.png";
     int low_threshold = 30;
     int high_threshold = 100;
     // Load Color Image
@@ -105,7 +105,7 @@ TEST_CASE("Canny, Parallel")
 
 TEST_CASE("Canny, Serial")
 {
-    std::string img_path = "../fixtures/bird.png";
+    std::string img_path = "../fixtures/kingfisher.png";
     int low_threshold = 30;
     int high_threshold = 100;
     // Load Color Image

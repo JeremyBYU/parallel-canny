@@ -75,13 +75,13 @@ class Canny {
                          Canny::NoiseFilter kernel_size,
                          int weak_threshold = 50, int strong_threshold = 200);
 
+    double* G_;
+    double* M_;
+    unsigned char* s_;
    private:
     int w_;
     int h_;
     int size_;
-    double* G_;
-    double* M_;
-    unsigned char* s_;
 };
 
 class PCanny {
@@ -101,12 +101,12 @@ class PCanny {
                          int weak_threshold = 50, int strong_threshold = 200);
 
    private:
-    int w_;
-    int h_;
-    int size_;
     double* G_;
     double* M_;
     unsigned char* s_;
+    int w_;
+    int h_;
+    int size_;
 };
 
 
