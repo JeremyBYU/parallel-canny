@@ -59,6 +59,31 @@ namespace Utility
 }
 
 
+class Canny {
+   public:
+    enum class NoiseFilter { Gaus3x3, Gaus5x5 };
+
+   public:
+    Canny(int w, int h);
+    virtual ~Canny();
+    void GaussianFilter(unsigned char *dst, const unsigned char *src,
+                                Canny::NoiseFilter kernel_size);
+    void SobelFilter(unsigned char *dst);
+    void LocalMaxima();
+    void CannyEdges(unsigned char *dst,int weak_threshold, int strong_threshold);
+    unsigned char* edges(unsigned char* dst, const unsigned char* src,
+                         Canny::NoiseFilter kernel_size,
+                         int weak_threshold = 50, int strong_threshold = 200);
+
+   private:
+    int w_;
+    int h_;
+    int size_;
+    double* G_;
+    double* M_;
+    unsigned char* s_;
+};
+
 class PCanny {
    public:
     enum class NoiseFilter { Gaus3x3, Gaus5x5 };

@@ -17,8 +17,9 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(extern_doctest)
 FetchContent_MakeAvailable(nanobench)
-
+find_package(OpenMP)
 
 add_executable(run-bench canny-bench run-bench.cpp)
 target_include_directories(run-bench PRIVATE ${PROJECT_SOURCE_DIR}/thirdparty)
 target_link_libraries(run-bench PRIVATE doctest::doctest nanobench PCanny::PCAN)
+target_link_libraries(run-bench PUBLIC OpenMP::OpenMP_CXX)

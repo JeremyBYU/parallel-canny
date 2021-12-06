@@ -54,8 +54,8 @@ void transform(std::string img_path, int low_threshold, int high_threshold)
 
     // setup Canny Edge Detector
     unsigned char *image_edges = static_cast<unsigned char *>(calloc(x * y, sizeof(unsigned char)));
-    PCanny::PCanny::NoiseFilter filter = PCanny::PCanny::NoiseFilter::Gaus3x3;
-    PCanny::PCanny canny(x, y);
+    PCanny::Canny::NoiseFilter filter = PCanny::Canny::NoiseFilter::Gaus3x3;
+    PCanny::Canny canny(x, y);
     // Call Function
     canny.edges(image_edges, gray_image_data, filter, low_threshold,
                 high_threshold);
