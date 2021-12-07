@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <bits/stdc++.h>
 
 #include "PCanny/PCanny.hpp"
 
@@ -32,9 +33,16 @@ void usage(char* s) {
 }
 
 template<class T>
-unsigned char* convert(T *image, int m, int n, double scale=16.0)
+unsigned char* convert(T *image, int m, int n, double scale=1.0)
 {
     unsigned char *new_data = static_cast<unsigned char *>(calloc(m * n, sizeof(unsigned char)));
+
+    // normalize by the max value
+    if (scale == 0.0)
+    {
+        auto value = std::max_element(image, image + m * n);
+        scale = *value;
+    }
     for(int i = 0; i < m; ++i) {
         for(int j = 0; j < n; ++j)
         {
@@ -79,7 +87,7 @@ void transform(std::string img_path, int low_threshold, int high_threshold)
     
     // Write Sobel Edges
     canny.SobelFilter(image_edges);
-    auto converted_sobel =convert(canny.G_, y, x);
+    auto converted_sobel =convert(canny.G_, y, x, 0.0);
     output_image_path = img_path.substr(0, img_path.length() - 4) + "_sobel.png";
     stbi_write_png(output_image_path.c_str(), x, y, 1, converted_sobel, x * 1);
 
@@ -96,7 +104,7 @@ void transform(std::string img_path, int low_threshold, int high_threshold)
 
     // Write Canny Edges
     canny.CannyEdges(image_edges, low_threshold,high_threshold);
-    output_image_path = img_path.substr(0, img_path.length() - 4) + "_maxima.png";
+    output_image_path = img_path.substr(0, img_path.length() - 4) + "_edges.png";
     stbi_write_png(output_image_path.c_str(), x, y, 1, image_edges, x * 1);
 
 
