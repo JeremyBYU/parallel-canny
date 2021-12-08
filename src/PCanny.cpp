@@ -51,6 +51,8 @@
 #include <cstdint>
 #include <iomanip>
 
+#define SCHEDULER static
+
 namespace PCanny
 {
 
@@ -357,20 +359,21 @@ namespace PCanny
     {
 
         int offset_xy = 1; // for kernel = 3
-        int8_t *kernel = (int8_t *)Gaus3x3;
-        int kernel_div = Gaus3x3Div;
+        // forcing 3X3 Guassian
+        // int8_t *kernel = (int8_t *)Gaus3x3;
+        // int kernel_div = Gaus3x3Div;
 
-        if (kernel_size == NoiseFilter::Gaus5x5)
-        {
-            offset_xy = 2;
-            kernel = (int8_t *)Gaus5x5;
-            kernel_div = Gaus5x5Div;
-        }
+        // if (kernel_size == NoiseFilter::Gaus5x5)
+        // {
+        //     offset_xy = 2;
+        //     kernel = (int8_t *)Gaus5x5;
+        //     kernel_div = Gaus5x5Div;
+        // }
         // gaussian filter
-        #pragma omp parallel for schedule(static) collapse(2)
-        for (int y = 0; y < h_; y++)
+        #pragma omp parallel for schedule(SCHEDULER) collapse(2)
+        for (int x = 0; x < w_; x++)
         {
-            for (int x = 0; x < w_; x++)
+            for (int y = 0; y < h_; y++)
             {
                 int pos = x + (y * w_);
                 if (x < offset_xy || x >= (w_ - offset_xy) || y < offset_xy ||
@@ -385,12 +388,12 @@ namespace PCanny
                 {
                     for (int ky = -offset_xy; ky <= offset_xy; ky++)
                     {
-                        convolve += (src[pos + (kx + (ky * w_))] * kernel[k]);
+                        convolve += (src[pos + (kx + (ky * w_))] * Gaus3x3[k]);
                         k++;
                     }
                 }
 
-                dst[pos] = (unsigned char)((double)convolve / (double)kernel_div);
+                dst[pos] = (unsigned char)((double)convolve / (double)Gaus3x3Div);
             }
         }
 
@@ -400,8 +403,8 @@ namespace PCanny
     {
 
          // apply sobel kernels
-        int offset_xy = 1; // 3x3
-        #pragma omp parallel for schedule(static) collapse(2)
+        const int offset_xy = 1; // 3x3
+        #pragma omp parallel for schedule(SCHEDULER) collapse(2)
         for (int x = offset_xy; x < w_ - offset_xy; x++)
         {
             for (int y = offset_xy; y < h_ - offset_xy; y++)
@@ -473,7 +476,7 @@ namespace PCanny
 
    void PCanny::LocalMaxima()
     {
-        #pragma omp parallel for schedule(static) collapse(2)
+        #pragma omp parallel for schedule(SCHEDULER) collapse(2)
         for (int x = 1; x < w_ - 1; x++)
         {
             for (int y = 1; y < h_ - 1; y++)
@@ -522,7 +525,7 @@ namespace PCanny
     {
         #pragma omp parallel
         {
-        #pragma omp for schedule(static) collapse(2)   
+        #pragma omp for schedule(SCHEDULER) collapse(2)   
         for (int x = 0; x < w_; x++)
         {
             for (int y = 0; y < h_; y++)
@@ -544,7 +547,7 @@ namespace PCanny
         }
 
         // edges with hysteresis
-        #pragma omp for schedule(static) collapse(2)  
+        #pragma omp for schedule(SCHEDULER) collapse(2)  
         for (int x = 1; x < w_ - 1; x++)
         {
             for (int y = 1; y < h_ - 1; y++)

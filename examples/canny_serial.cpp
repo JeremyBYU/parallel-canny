@@ -99,8 +99,9 @@ void transform(std::string img_path, int low_threshold, int high_threshold)
 
     // Write Local Max Edges
     canny.LocalMaxima();
+    auto converted_maxima =convert(canny.M_, y, x, 0.0);
     output_image_path = img_path.substr(0, img_path.length() - 4) + "_maxima.png";
-    stbi_write_png(output_image_path.c_str(), x, y, 1, canny.M_, x * 1);
+    stbi_write_png(output_image_path.c_str(), x, y, 1, converted_maxima, x * 1);
 
     // Write Canny Edges
     canny.CannyEdges(image_edges, low_threshold,high_threshold);
